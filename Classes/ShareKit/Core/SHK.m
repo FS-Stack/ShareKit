@@ -37,6 +37,7 @@
 #import <objc/message.h>
 #import <MessageUI/MessageUI.h>
 #include <sys/xattr.h>
+#import "SHKTwitter.h"
 
 NSString * SHKLocalizedStringFormat(NSString* key);
 NSString * const SHKHideCurrentViewFinishedNotification = @"SHKHideCurrentViewFinished";
@@ -140,8 +141,22 @@ BOOL SHKinit;
 		
 		nav.navigationBar.barStyle = nav.toolbar.barStyle = [SHK barStyle];
         nav.navigationBar.tintColor = SHKCONFIG_WITH_ARGUMENT(barTintForView:,vc);
-		
-		[topViewController presentModalViewController:nav animated:YES];			
+        if(([vc isKindOfClass:[SHKTwitter class]] &&  UIDeviceOrientationIsLandscape(topViewController.interfaceOrientation)) || [vc isKindOfClass:[SHKOAuthView class]])
+        {
+            NSLog(@"UPHERE");
+            nav.view.frame = CGRectMake(3,480, 470, 314);;
+            [topViewController.view addSubview:nav.view];
+            
+            [UIView animateWithDuration:.3 delay:0.0 options:UIViewAnimationOptionCurveEaseInOut animations:^{
+                nav.view.frame = CGRectMake(3,3, 470, 314);;
+            }
+                             completion:^(BOOL done){ }
+             ];
+        }
+        else {
+            NSLog(@"DOWN THERE");
+            [topViewController presentModalViewController:nav animated:YES];
+        }
 		self.currentView = nav;
 	}
 	
@@ -153,6 +168,22 @@ BOOL SHKinit;
 		
 		if ([vc respondsToSelector:@selector(modalTransitionStyle)])
 			vc.modalTransitionStyle = [SHK modalTransitionStyle];
+        if([vc isKindOfClass:[SHKTwitter class]] &&  UIDeviceOrientationIsLandscape(topViewController.interfaceOrientation))
+        {
+            NSLog(@"UPHERE");
+            vc.view.frame = CGRectMake(3,480, 470, 314);;
+            [topViewController.view addSubview:vc.view];
+            
+            [UIView animateWithDuration:0.4 delay:0.0 options:UIViewAnimationOptionCurveEaseInOut animations:^{
+                vc.view.frame = CGRectMake(3,3, 470, 314);;
+            }
+                             completion:^(BOOL done){ }
+             ];        }
+        else {
+            NSLog(@"DOWN THERE");
+        }
+        
+        // Repositions and resizes the view.
 		
 		[topViewController presentModalViewController:vc animated:YES];
 		[(UINavigationController *)vc navigationBar].barStyle = 
@@ -233,7 +264,14 @@ BOOL SHKinit;
         }
 		
 		else
-			self.currentView = nil;
+            [UIView animateWithDuration:0.4 delay:0.0 options:UIViewAnimationOptionCurveEaseInOut animations:^{
+                currentView.view.frame = CGRectMake(3,480, 470, 314);;
+            }
+                             completion:^(BOOL done){
+                                 [currentView.view removeFromSuperview];
+                                 self.currentView = nil;
+                             }
+             ];
 	}
 }
 
